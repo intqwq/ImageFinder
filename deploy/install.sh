@@ -28,7 +28,7 @@ if ! id pixeltrace >/dev/null 2>&1; then
 fi
 
 install -d -o root -g root -m 0755 "${INSTALL_DIR}"
-for file in index.html styles.css app.js matcher-core.js server.py; do
+for file in index.html styles.css app.js matcher-core.js favicon.svg server.py; do
   install -o root -g root -m 0644 "${REPO_DIR}/${file}" "${INSTALL_DIR}/${file}"
 done
 sed "s#http://127.0.0.1:18103#http://127.0.0.1:${PORT}#" \

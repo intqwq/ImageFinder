@@ -12,7 +12,14 @@ from urllib.parse import urlsplit
 
 class PixelTraceHandler(SimpleHTTPRequestHandler):
     server_version = "PixelTrace/1.2"
-    public_paths = {"/", "/index.html", "/styles.css", "/app.js", "/matcher-core.js"}
+    public_paths = {
+        "/",
+        "/index.html",
+        "/styles.css",
+        "/app.js",
+        "/matcher-core.js",
+        "/favicon.svg",
+    }
 
     def __init__(self, *args: object, directory: str, **kwargs: object) -> None:
         super().__init__(*args, directory=directory, **kwargs)
