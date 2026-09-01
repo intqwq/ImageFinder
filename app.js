@@ -440,23 +440,6 @@ function renderResult(results, selectedIndex = 0, shouldScroll = true) {
     context.strokeRect(frameX, frameY, frameWidth, frameHeight);
     context.setLineDash([]);
 
-    if (isSelected) {
-      const crosshairRadius = Math.max(lineWidth * 1.4, Math.min(match.width, match.height) * .16);
-      const centerX = match.x + match.width / 2;
-      const centerY = match.y + match.height / 2;
-      context.strokeStyle = 'rgba(5, 10, 8, .9)';
-      context.lineWidth = lineWidth * 1.55;
-      context.beginPath();
-      context.moveTo(centerX - crosshairRadius, centerY);
-      context.lineTo(centerX + crosshairRadius, centerY);
-      context.moveTo(centerX, centerY - crosshairRadius);
-      context.lineTo(centerX, centerY + crosshairRadius);
-      context.stroke();
-      context.strokeStyle = color;
-      context.lineWidth = Math.max(3, lineWidth * .62);
-      context.stroke();
-    }
-
     context.font = `700 ${labelFont}px Manrope, sans-serif`;
     const metrics = context.measureText(label);
     const labelWidth = metrics.width + paddingX * 2;
