@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="PixelTrace locates a smaller image inside a larger one and creates an annotated result."
+    />
+    <title>PixelTrace — Visual image locator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="PixelTrace home">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </span>
+        <span>PIXELTRACE</span>
+      </a>
+      <div class="privacy-pill"><span></span> Runs locally in your browser</div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow"><span>01</span> VISUAL IMAGE LOCATOR</p>
+        <h1 id="page-title">Find the fragment.<br /><em>Mark the exact spot.</em></h1>
+        <p class="hero-copy">
+          Drop in a cropped image and the larger scene it came from. PixelTrace searches across
+          scale and detail changes, then draws the match for you.
+        </p>
+      </section>
+
+      <section class="workspace" aria-label="Image matching workspace">
+        <div class="upload-grid">
+          <article class="upload-card" id="needleCard">
+            <div class="card-heading">
+              <div>
+                <span class="step-number">01</span>
+                <h2>The fragment</h2>
+              </div>
+              <span class="role-tag">NEEDLE</span>
+            </div>
+            <button class="drop-zone" id="needleDrop" type="button" aria-describedby="needleHint">
+              <input id="needleInput" type="file" accept="image/*" hidden />
+              <span class="empty-upload">
+                <span class="upload-icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32"><path d="M16 22V7m0 0-6 6m6-6 6 6M6 21v5h20v-5" /></svg>
+                </span>
+                <strong>Drop the smaller image here</strong>
+                <small id="needleHint">or click to browse · PNG, JPG, WEBP</small>
+              </span>
+              <span class="image-preview" hidden>
+                <img alt="Fragment preview" />
+                <span class="preview-shade"></span>
+                <span class="file-meta"><b></b><small></small></span>
+                <span class="replace-label">Replace image</span>
+              </span>
+            </button>
+          </article>
+
+          <article class="upload-card" id="haystackCard">
+            <div class="card-heading">
+              <div>
+                <span class="step-number">02</span>
+                <h2>The full image</h2>
+              </div>
+              <span class="role-tag">HAYSTACK</span>
+            </div>
+            <button class="drop-zone" id="haystackDrop" type="button" aria-describedby="haystackHint">
+              <input id="haystackInput" type="file" accept="image/*" hidden />
+              <span class="empty-upload">
+                <span class="upload-icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32"><path d="M16 22V7m0 0-6 6m6-6 6 6M6 21v5h20v-5" /></svg>
+                </span>
+                <strong>Drop the larger image here</strong>
+                <small id="haystackHint">or click to browse · PNG, JPG, WEBP</small>
+              </span>
+              <span class="image-preview" hidden>
+                <img alt="Full image preview" />
+                <span class="preview-shade"></span>
+                <span class="file-meta"><b></b><small></small></span>
+                <span class="replace-label">Replace image</span>
+              </span>
+            </button>
+          </article>
+        </div>
+
+        <div class="control-bar">
+          <div class="setting">
+            <label for="scaleRange">SEARCH RANGE</label>
+            <select id="scaleRange">
+              <option value="0.01,1.35">Auto · tiny to full size</option>
+              <option value="0.35,1.35">Fast · larger fragments</option>
+              <option value="0.005,1.75">Wide · 0.5–175%</option>
+              <option value="0.002,2.5">Extra wide · 0.2–250%</option>
+            </select>
+          </div>
+          <div class="control-divider"></div>
+          <p class="ready-note" id="readyNote">Add both images to begin</p>
+          <button class="find-button" id="findButton" type="button" disabled>
+            <span class="button-label">Locate fragment</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14 0m-5-5 5 5-5 5" /></svg>
+          </button>
+        </div>
+
+        <section class="progress-panel" id="progressPanel" hidden aria-live="polite">
+          <div class="scanner-art" aria-hidden="true">
+            <span class="scan-box"></span>
+            <span class="scan-line"></span>
+          </div>
+          <div class="progress-copy">
+            <span id="progressStep">Preparing image data</span>
+            <strong id="progressPercent">0%</strong>
+          </div>
+          <div class="progress-track"><span id="progressBar"></span></div>
+        </section>
+
+        <section class="result-panel" id="resultPanel" hidden aria-labelledby="resultTitle">
+          <div class="result-heading">
+            <div>
+              <p class="eyebrow"><span>03</span> MATCH RESULT</p>
+              <h2 id="resultTitle">Three potential matches</h2>
+            </div>
+            <button class="text-button" id="startOver" type="button">Clear & start over</button>
+          </div>
+
+          <div class="result-grid">
+            <div class="result-visual">
+              <div class="result-toolbar" role="toolbar" aria-label="Result preview controls">
+                <div class="view-buttons" aria-label="Preview view">
+                  <button id="fitView" type="button">Fit image</button>
+                  <button id="focusView" type="button" class="active">Focus match</button>
+                  <button id="actualView" type="button">100%</button>
+                </div>
+                <div class="zoom-buttons" aria-label="Preview zoom">
+                  <button id="zoomOut" type="button" aria-label="Zoom out">−</button>
+                  <output id="zoomValue" aria-live="polite">Fit</output>
+                  <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
+                </div>
+              </div>
+              <div class="canvas-wrap" id="canvasWrap">
+                <canvas id="resultCanvas" aria-label="Larger image with candidate locations marked"></canvas>
+              </div>
+              <p class="preview-hint">Choose a candidate to jump to it · Click a marker to select · Drag the scrollbars to explore</p>
+            </div>
+            <aside class="result-details">
+              <figure class="match-closeup">
+                <canvas id="closeupCanvas" aria-label="Magnified preview of the selected match"></canvas>
+                <figcaption id="closeupCaption">Selected match close-up</figcaption>
+              </figure>
+              <div class="candidate-heading"><span>RANKED CANDIDATES</span><small>SELECT TO INSPECT</small></div>
+              <div class="match-candidates" id="matchCandidates"></div>
+              <div class="confidence-block">
+                <div class="score-ring" id="scoreRing"><strong id="confidenceScore">—</strong><small>%</small></div>
+                <div><span>CONFIDENCE</span><strong id="confidenceLabel">Analyzing</strong></div>
+              </div>
+              <p class="result-message" id="resultMessage"></p>
+              <dl>
+                <div><dt>Position</dt><dd id="positionValue">—</dd></div>
+                <div><dt>Match size</dt><dd id="sizeValue">—</dd></div>
+                <div><dt>Scale</dt><dd id="scaleValue">—</dd></div>
+              </dl>
+              <button class="download-button" id="downloadButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 18v2h14v-2" /></svg>
+                Download marked image
+              </button>
+              <button class="secondary-button" id="runAgain" type="button">Search again</button>
+            </aside>
+          </div>
+        </section>
+      </section>
+
+      <section class="how-it-works" aria-label="How PixelTrace works">
+        <p class="eyebrow">BUILT FOR REAL-WORLD MISMATCHES</p>
+        <div class="feature-grid">
+          <article><span>↗</span><h3>Scale tolerant</h3><p>Searches several sizes to handle resolution differences.</p></article>
+          <article><span>◫</span><h3>Detail aware</h3><p>Balances shape, contrast, edges, and color—not exact pixels.</p></article>
+          <article><span>⌁</span><h3>Private by design</h3><p>Your images never leave this browser tab.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer><span>PIXELTRACE</span><small>A fast visual locator for the browser.</small></footer>
+    <script src="matcher-core.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

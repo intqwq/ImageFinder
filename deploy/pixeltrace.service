@@ -1,0 +1,27 @@
+[Unit]
+Description=PixelTrace image locator
+After=network.target
+
+[Service]
+Type=simple
+User=pixeltrace
+Group=pixeltrace
+Environment=PIXELTRACE_PORT=18103
+EnvironmentFile=-/etc/default/pixeltrace
+WorkingDirectory=/opt/pixeltrace
+ExecStart=/usr/bin/python3 /opt/pixeltrace/server.py --host 127.0.0.1 --port ${PIXELTRACE_PORT}
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

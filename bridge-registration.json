@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "service": "pixeltrace",
+  "routes": [
+    {
+      "hostname": "pixeltrace.intqwq.com",
+      "origin": "http://127.0.0.1:18103",
+      "health_path": "/healthz",
+      "client_max_body_size": "1m",
+      "proxy_read_timeout_seconds": 60
+    }
+  ]
+}

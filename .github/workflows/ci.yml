@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check matcher and randomized suite
+        run: npm run check
+      - name: Check Raspberry Pi deployment files
+        run: |
+          bash -n deploy/install.sh
+          python3 -m py_compile server.py
+          python3 -m json.tool bridge-registration.json >/dev/null
+      - name: Smoke-test production server
+        run: |
+          python3 server.py --port 18103 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in {1..20}; do
+            if curl -fsS http://127.0.0.1:18103/healthz; then
+              break
+            fi
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:18103/ >/dev/null
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18103/server.py)" = 404
